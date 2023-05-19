@@ -26,9 +26,7 @@ import com.honda.olympus.ms.transferfile.domain.Message;
 public class ProcessFileServiceTest2 
 {
 	
-	static final Integer STATUS = 1; 
-	static final String MSG = "SUCCESS";
-	static final String FILE = "file1.txt";
+	static final String FILE = "processFileExample.txt";
 	
 	
 	@Autowired
@@ -48,9 +46,20 @@ public class ProcessFileServiceTest2
 	
 	@Test
 	@Order(2)
+	void shouldFailProcessFileInRemoteService() 
+	{
+		Message message = new Message(0, "FAIL", FILE);
+		HttpStatus status = processFileService.processFile(message);
+		
+		assertTrue(status.is4xxClientError());
+	}
+	
+	
+	@Test
+	@Order(2)
 	void shouldProcessFileInRemoteService() 
 	{
-		Message message = new Message(STATUS, MSG, FILE);
+		Message message = new Message(1, "SUCCESS", FILE);
 		HttpStatus status = processFileService.processFile(message);
 		
 		assertTrue(status.is2xxSuccessful());
