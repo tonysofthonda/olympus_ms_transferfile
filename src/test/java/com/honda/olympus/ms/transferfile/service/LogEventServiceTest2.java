@@ -10,17 +10,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 
+import com.honda.olympus.ms.transferfile.client.LogEventClient;
 import com.honda.olympus.ms.transferfile.domain.Event;
 
 
 /**
- * This class contains sociable unit tests used to verify the LogEventService's behavior
+ * This class contains sociable unit tests used to verify the LogEventService behavior
  * Conditions:
- *    - It is recommended to run the class in isolation (mvn test -Dtest="LogEventServiceTest2")
+ *    - The class should be executed in isolation (mvn test -Dtest="LogEventServiceTest2")
  *    - The LogEvent application (ms.logevent) must be up
  */
 
-@SpringBootTest
+@SpringBootTest(classes = {LogEventService.class, LogEventClient.class})
 @TestMethodOrder(OrderAnnotation.class)
 public class LogEventServiceTest2
 {
@@ -32,7 +33,7 @@ public class LogEventServiceTest2
 	
 	
 	@Autowired
-	private LogEventService logEventService;
+	LogEventService logEventService;
 	
 	
 	@Test
