@@ -21,7 +21,7 @@ public class ProcessFileClient
 {
 	
 	private static final String PATH = "/olympus/processfile/v1/file";
-	private static final int PORT = 8080;
+	private static final int PORT = 8085;
 	
 	private String url; 
 	
