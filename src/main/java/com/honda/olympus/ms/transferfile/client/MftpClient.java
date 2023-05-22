@@ -8,38 +8,57 @@ import org.apache.commons.net.PrintCommandListener;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
-import com.honda.olympus.ms.transferfile.util.NetUtil;
 import com.honda.olympus.ms.transferfile.util.FileUtil;
 
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 
 
 @Slf4j
-@Component
-@Scope(scopeName = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class MftpClient 
 { 
 	
 	private FTPClient ftp;
-	private Config config;
+	private MftpConfig config;
+	
+	private String fileName;
+	private String input;
+	private String newFileName;  
+	private String output;
+	
+	private FTPFile remoteFile;
 	
 	
-	@Autowired
-	public MftpClient(Config config) {
+	
+	public MftpClient(MftpConfig config, String fileName, String newFileName) {
 		this.config = config;
-		log.info("# mftp host: {}", config.host);
-		log.info("# mftp inbound: {}", config.inbound);
-		log.info("# mftp destination: {}", config.destination);
-		FileUtil.createDir(config.destination);
+		
+		this.fileName = fileName;
+		this.input = FileUtil.withFrontSlash( FileUtil.concat(config.inbound(), fileName) );
+		
+		this.newFileName = newFileName;
+		this.output = FileUtil.withFrontSlash( FileUtil.concat(config.destination(), newFileName) );
+		
+		log.info("# mftp host: {}", config.host());
+		log.info("# mftp inbound: {}", config.inbound());
+		log.info("# mftp destination: {}", config.destination());
+		
+		FileUtil.createDir(config.destination());
 	}
+	
+	
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
+		this.input = FileUtil.withFrontSlash( FileUtil.concat(config.inbound(), fileName) );
+	}
+	
+	
+	public void setNewFileName(String newFileName) {
+		this.newFileName = newFileName;
+		this.output = FileUtil.withFrontSlash( FileUtil.concat(config.destination(), newFileName) );
+	}
+	
 	
 	
 	public boolean open() {
@@ -47,8 +66,8 @@ public class MftpClient
 			ftp = new FTPClient();
 	        ftp.addProtocolCommandListener(new PrintCommandListener(new PrintWriter(System.out)));
 	        
-	        ftp.connect(config.host, config.port);
-	        ftp.login(config.user, config.pass);
+	        ftp.connect(config.host(), config.port());
+	        ftp.login(config.user(), config.pass());
 	        
 	        int reply = ftp.getReplyCode();
 	        if (!FTPReply.isPositiveCompletion(reply)) 
@@ -66,15 +85,16 @@ public class MftpClient
     }
 	
 	
-	public boolean fileExists(String fileName) {
+	public boolean fileExists() {
 		try {
-			String input = FileUtil.withFrontSlash( FileUtil.concat(config.inbound, fileName) );
 			FTPFile[] list = ftp.listFiles(input);
 			
 			if (list.length == 0) {
 				log.error("### Can't find remote file '{}'", fileName);
 				return false;
 			}
+			
+			remoteFile = list[0];   // keep file info
 			return true;
 		}
 		catch (IOException ioe) {
@@ -83,20 +103,20 @@ public class MftpClient
 		}
 	}
 	
+	public boolean isFileEmtpy() {
+		return remoteFile.getSize() == 0;
+	}
 	
-	public boolean downloadFile(String fileName, String newFileName) 
-	{
-		String input = FileUtil.withFrontSlash( FileUtil.concat(config.inbound, fileName) );
-		String output = FileUtil.withFrontSlash( FileUtil.concat(config.destination, newFileName) );
+	
+	public boolean downloadFile() {
 		FileOutputStream fos = null;
-		
 		try {
 			fos = new FileOutputStream(output, false);
 		    if (!ftp.retrieveFile(input, fos)) 
 		    {
 		    	log.error("### Can't download remote file '{}'", fileName);
 		    	fos.close();
-		    	FileUtil.removeFile(output);
+		    	FileUtil.removeFile(output);  // remove leftover empty file
 				return false;
 		    }
 			fos.close();
@@ -114,10 +134,8 @@ public class MftpClient
 	}
 	
 	
-	public boolean deleteFile(String fileName) {
+	public boolean deleteFile() {
 		try {
-			String input = FileUtil.withFrontSlash( FileUtil.concat(config.inbound, fileName) );
-			
 			if (!ftp.deleteFile(input)) {
 				log.error("### Can't delete remote file '{}'", fileName);
 				return false;
@@ -142,33 +160,5 @@ public class MftpClient
 			return false;
 		}
     }
-	
-	
-	
-	@Data
-	@Component
-	@Scope(scopeName = ConfigurableBeanFactory.SCOPE_SINGLETON)
-	public static class Config 
-	{
-		private static final String BASE_DIR = System.getProperty("java.io.tmpdir");
-		
-		private String host;
-		@Value("${port}") private int port;
-		@Value("${user}") private String user;
-		@Value("${pass}") private String pass;
-		private String inbound;
-		private String destination;
-		
-		public Config(
-			@Value("${host}") String internalHost, 
-			@Value("${mftp.ext.host}") String externalHost, 
-			@Value("${inbound}") String inbound, 
-			@Value("${destination}") String destination) 
-		{
-			this.host = NetUtil.isSiteLocalAddress() ? internalHost : externalHost;
-			this.inbound = FileUtil.withFrontSlash( String.format(inbound, BASE_DIR) );
-			this.destination = FileUtil.withFrontSlash( String.format(destination, BASE_DIR) );
-		}
-	}//
 	
 }

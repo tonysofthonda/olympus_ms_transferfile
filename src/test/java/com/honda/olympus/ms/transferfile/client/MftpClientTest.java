@@ -3,9 +3,6 @@ package com.honda.olympus.ms.transferfile.client;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.IOException;
-
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -34,47 +31,47 @@ public class MftpClientTest
 	static final String FILE_NAME = "processFileExample.txt";
 	static final String NEW_FILE_NAME = "ahm20200401153355.txt";
 	static final String FILE_CONTENT = "CHANGEORD1000000SSORG_TYPECONFIG_ID000000009...";
+	static final String EMPTY_FILE = "empty.txt";
+	static final String EMPTY_CONTENT = "";
 	
 	static FakeFtpServer fakeFtpServer;
+	static MftpConfig mftpConfig;
 	static MftpClient mftpClient;
+	
 	
 	
 	@BeforeAll
 	static void beforeAll() {
-		configureFtpServer();
-		configureMftpClient();
+		loadFakeFtpServer();
+		loadMftpConfig();
+		loadMftpClient();
 		
 	}
 	
-	
-	@AfterAll
-	static void afterAll() throws IOException {
-		// mftpClient.close();
-		// fakeFtpServer.stop();
-	}
-	
-	
-	static void configureFtpServer() {
+	static void loadFakeFtpServer() {
 		fakeFtpServer = new FakeFtpServer();
 		fakeFtpServer.addUserAccount(new UserAccount(USER, PWD, INBOUND));
 		
 		FileSystem fileSystem = new UnixFakeFileSystem();
         fileSystem.add( new DirectoryEntry(INBOUND) );
         fileSystem.add( new FileEntry(INBOUND + FILE_NAME, FILE_CONTENT) );
+        fileSystem.add( new FileEntry(INBOUND + EMPTY_FILE, EMPTY_CONTENT) );
         
         fakeFtpServer.setFileSystem(fileSystem);
         fakeFtpServer.setServerControlPort(PORT);
         fakeFtpServer.start();
 	}
 	
+	static void loadMftpConfig() {
+		mftpConfig = new MftpConfig(HOST, HOST, INBOUND, DESTINATION);
+		mftpConfig.setPort(PORT);
+		mftpConfig.setUser(USER);
+		mftpConfig.setPass(PWD);
+		mftpConfig.setInbound(INBOUND);
+	}
 	
-	static void configureMftpClient() {
-		MftpClient.Config config = new MftpClient.Config(HOST, HOST, INBOUND, DESTINATION);
-		config.setPort(PORT);
-		config.setUser(USER);
-		config.setPass(PWD);
-		config.setInbound(INBOUND);
-		mftpClient = new MftpClient(config);
+	static void loadMftpClient() {
+		mftpClient = new MftpClient(mftpConfig, FILE_NAME, NEW_FILE_NAME);
 	}
 	
 	
@@ -90,60 +87,87 @@ public class MftpClientTest
 	@Test
 	@Order(2)
 	void fileShouldExist() {
-		assertTrue( mftpClient.fileExists(FILE_NAME) );
+		assertTrue( mftpClient.fileExists() );
 	}
 	
 	@Test
 	@Order(3)
 	void fileShouldNotExists() {
-		assertFalse( mftpClient.fileExists("file1.txt") );
+		mftpClient.setFileName("file1.txt");
+		assertFalse( mftpClient.fileExists() );
+		mftpClient.setFileName(FILE_NAME);
 	}
 	
 	
 	
 	@Test
 	@Order(4)
-	void shouldDownloadFile() {
-		assertTrue( mftpClient.downloadFile(FILE_NAME, NEW_FILE_NAME) );
+	void fileShouldNotBeEmpty() {
+		mftpClient.fileExists();
+		assertFalse( mftpClient.isFileEmtpy() );
 	}
 	
 	@Test
 	@Order(5)
-	void shouldNotDownloadFile() {
-		assertFalse( mftpClient.downloadFile("file1.txt", "newFile1.txt") );
+	void fileShouldBeEmpty() {
+		mftpClient.setFileName(EMPTY_FILE);
+		mftpClient.fileExists();
+		assertTrue( mftpClient.isFileEmtpy()  );
+		mftpClient.setFileName(FILE_NAME);
+		mftpClient.fileExists();
 	}
 	
 	
 	
 	@Test
 	@Order(6)
-	void shouldDeleteFile() {
-		assertTrue( mftpClient.deleteFile(FILE_NAME) );
+	void shouldDownloadFile() {
+		assertTrue( mftpClient.downloadFile() );
 	}
 	
 	@Test
 	@Order(7)
-	void shouldNotDeleteFile() {
-		assertFalse( mftpClient.deleteFile("file1.txt") );
+	void shouldNotDownloadFile() {
+		mftpClient.setFileName("file1.txt");
+		mftpClient.setNewFileName("newFile1.txt");
+		assertFalse( mftpClient.downloadFile() );
+		mftpClient.setFileName(FILE_NAME);
+		mftpClient.setNewFileName(NEW_FILE_NAME);
 	}
 	
 	
 	
 	@Test
 	@Order(8)
+	void shouldDeleteFile() {
+		assertTrue( mftpClient.deleteFile() );
+	}
+	
+	@Test
+	@Order(9)
+	void shouldNotDeleteFile() {
+		mftpClient.setFileName("file1.txt");
+		assertFalse( mftpClient.deleteFile() );
+		mftpClient.setFileName(FILE_NAME);
+	}
+	
+	
+	
+	@Test
+	@Order(10)
 	void shouldDisconnectFromFtpServer() {
 		assertTrue( mftpClient.close() );
 	}
 	
 	@Test
-	@Order(9)
+	@Order(11)
 	void shouldNotConnectToFtpServer() {
 		fakeFtpServer.stop();
 		assertFalse( mftpClient.open() );
 	}
 	
 	@Test
-	@Order(10)
+	@Order(12)
 	void shouldNotDisconnectFromFtpServer() {
 		assertFalse( mftpClient.close() );
 	}
