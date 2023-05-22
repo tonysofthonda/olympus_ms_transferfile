@@ -94,7 +94,7 @@ public class MftpClient
 				return false;
 			}
 			
-			remoteFile = list[0];   // keep file info
+			remoteFile = list[0];  // keep file info used by isFileEmpty()
 			return true;
 		}
 		catch (IOException ioe) {
@@ -103,7 +103,7 @@ public class MftpClient
 		}
 	}
 	
-	public boolean isFileEmtpy() {
+	public boolean isFileEmtpy() {  // depends on previous execution of fileExists()
 		return remoteFile.getSize() == 0;
 	}
 	
