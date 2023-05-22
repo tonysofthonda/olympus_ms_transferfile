@@ -2,18 +2,23 @@ package com.honda.olympus.ms.transferfile.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 
 import com.honda.olympus.ms.transferfile.domain.Event;
 import com.honda.olympus.ms.transferfile.domain.Message;
 import com.honda.olympus.ms.transferfile.domain.Status;
 
+import lombok.Setter;
 
+
+@Setter
 @Service
 public class TransferService 
 {
@@ -46,11 +51,15 @@ public class TransferService
 				mftpService.transferFile(message.file(), getNewFileName());
 			}
 			else {
-				logEventService.logEvent( fileErrorEvent() );
+				Event event = fileErrorEvent();
+				logEventService.logEvent(event);
+				throw new ResponseStatusException(HttpStatus.BAD_REQUEST, event.msg());
 			}
 		}
 		else {
-			logEventService.logEvent( statusErrorEvent(message.file()) );
+			Event event = statusErrorEvent(message.file());
+			logEventService.logEvent(event);
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, event.msg());
 		}
 	}
 	
