@@ -20,20 +20,20 @@ import lombok.extern.slf4j.Slf4j;
 public class ProcessFileClient 
 {
 	
-	private static final String PATH = "/olympus/processfile/v1/file";
-	private static final int PORT = 8085;
-	
 	private String url; 
 	
 	
-	public ProcessFileClient(@Value("${processfile.url}") String processFileUrl) 
+	public ProcessFileClient(
+		@Value("${ms.processfile.url}") String url, 
+		@Value("${ms.processfile.path}") String path, 
+		@Value("${ms.processfile.port}") int port) 
 	{
 		this.url = new StringBuilder()
-			.append(NetUtil.isSiteLocalAddress() ? NetUtil.getLocalUrl(PORT) : processFileUrl)
-			.append(PATH)
+			.append(NetUtil.isSiteLocalAddress() ? NetUtil.getLocalUrl(port) : url)
+			.append(path)
 			.toString();
 		
-		log.info("# ms processfile url: {}", this.url);
+		log.info("# ms.processfile url: {}", this.url);
 	}
 	
 	

@@ -1,0 +1,24 @@
+
+ms:
+   transferfile: 
+      name: ms.transferfile
+      version: 1.0.0
+      
+   logevent: 
+      url: http://olympus-logevent.us-west-1.elasticbeanstalk.com
+      path: /olympus/logevent/v1/event
+      port: 8083
+   
+   notification: 
+      url: http://olympus-notification.us-west-1.elasticbeanstalk.com
+      path: /olympus/notification/v1/event
+      port: 8084
+      
+   processfile:
+      url: http://olympus-processfile-env.eba-crbzvjag.us-west-1.elasticbeanstalk.com
+      path: /olympus/processfile/v1/file
+      port: 8085
+      
+mftp: 
+   ext: 
+      host: mftp.ext.host

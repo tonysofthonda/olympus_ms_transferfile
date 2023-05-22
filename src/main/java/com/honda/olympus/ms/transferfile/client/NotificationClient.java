@@ -19,21 +19,21 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class NotificationClient 
 {
-
-	private static final String PATH = "/olympus/notification/v1/event";
-    private static final int PORT = 8080;
 	
 	private String url;                                    
 	
 	
-	public NotificationClient(@Value("${notification.url}") String notificationUrl)
+	public NotificationClient(
+		@Value("${ms.notification.url}") String url, 
+		@Value("${ms.notification.path}") String path, 
+		@Value("${ms.notification.port}") int port)
 	{
 		this.url = new StringBuilder()
-			.append(NetUtil.isSiteLocalAddress() ? NetUtil.getLocalUrl(PORT) : notificationUrl)
-			.append(PATH)
+			.append(NetUtil.isSiteLocalAddress() ? NetUtil.getLocalUrl(port) : url)
+			.append(path)
 			.toString();
 		
-		log.info("# ms notification url: {}", this.url);
+		log.info("# ms.notification url: {}", this.url);
 	}
 	
 	

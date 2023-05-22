@@ -20,20 +20,20 @@ import lombok.extern.slf4j.Slf4j;
 public class LogEventClient 
 {
 	
-	private static final String PATH = "/olympus/logevent/v1/event";
-	private static final int PORT = 8083;
-	
 	private String url; 
 	
 	
-	public LogEventClient(@Value("${logevent.url}") String logEventUrl) 
+	public LogEventClient(
+		@Value("${ms.logevent.url}") String url, 
+		@Value("${ms.logevent.path}") String path, 
+		@Value("${ms.logevent.port}") int port) 
 	{
 		this.url = new StringBuilder()
-			.append(NetUtil.isSiteLocalAddress() ? NetUtil.getLocalUrl(PORT) : logEventUrl)
-			.append(PATH)
+			.append(NetUtil.isSiteLocalAddress() ? NetUtil.getLocalUrl(port) : url)
+			.append(path)
 			.toString();
 		
-		log.info("# ms logevent url: {}", this.url);
+		log.info("# ms.logevent url: {}", this.url);
 	}
 	
 	
