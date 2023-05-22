@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import com.honda.olympus.ms.transferfile.domain.Message;
-import com.honda.olympus.ms.transferfile.util.NetUtil;
+import static com.honda.olympus.ms.transferfile.util.NetUtil.*;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,10 +28,8 @@ public class ProcessFileClient
 		@Value("${ms.processfile.path}") String path, 
 		@Value("${ms.processfile.port}") int port) 
 	{
-		this.url = new StringBuilder()
-			.append(NetUtil.isSiteLocalAddress() ? NetUtil.getLocalUrl(port) : url)
-			.append(path)
-			.toString();
+		String baseUrl = isSiteLocalAddress() ? buildLocalBaseUrl(false, port) : url;
+		this.url = fixSlashes(concat(baseUrl, path));
 		
 		log.info("# ms.processfile url: {}", this.url);
 	}
