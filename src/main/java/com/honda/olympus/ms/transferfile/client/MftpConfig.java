@@ -32,8 +32,8 @@ public class MftpConfig
 		@Value("${destination}") String destination) 
 	{
 		this.host = NetUtil.isSiteLocalAddress() ? internalHost : externalHost;
-		this.inbound = FileUtil.withFrontSlash( String.format(inbound, BASE_DIR) );
-		this.destination = FileUtil.withFrontSlash( String.format(destination, BASE_DIR) );
+		this.inbound = FileUtil.fixSlashes( String.format(inbound, BASE_DIR) );
+		this.destination = FileUtil.fixSlashes( String.format(destination, BASE_DIR) );
 	}
 	
 	

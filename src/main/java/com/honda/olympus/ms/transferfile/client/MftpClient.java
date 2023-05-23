@@ -35,10 +35,10 @@ public class MftpClient
 		this.config = config;
 		
 		this.fileName = fileName;
-		this.input = FileUtil.withFrontSlash( FileUtil.concat(config.inbound(), fileName) );
+		this.input = FileUtil.fixSlashes( FileUtil.concat(config.inbound(), fileName) );
 		
 		this.newFileName = newFileName;
-		this.output = FileUtil.withFrontSlash( FileUtil.concat(config.destination(), newFileName) );
+		this.output = FileUtil.fixSlashes( FileUtil.concat(config.destination(), newFileName) );
 		
 		log.info("# mftp host: {}", config.host());
 		log.info("# mftp inbound: {}", config.inbound());
@@ -50,13 +50,13 @@ public class MftpClient
 	
 	public void setFileName(String fileName) {
 		this.fileName = fileName;
-		this.input = FileUtil.withFrontSlash( FileUtil.concat(config.inbound(), fileName) );
+		this.input = FileUtil.fixSlashes( FileUtil.concat(config.inbound(), fileName) );
 	}
 	
 	
 	public void setNewFileName(String newFileName) {
 		this.newFileName = newFileName;
-		this.output = FileUtil.withFrontSlash( FileUtil.concat(config.destination(), newFileName) );
+		this.output = FileUtil.fixSlashes( FileUtil.concat(config.destination(), newFileName) );
 	}
 	
 	

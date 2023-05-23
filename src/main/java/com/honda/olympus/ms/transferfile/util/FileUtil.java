@@ -17,11 +17,11 @@ public final class FileUtil
 	
 	
 	public static String concat(String baseDir, String fileName) {
-		return new StringBuilder(baseDir).append(SLASH).append(fileName).toString(); 
+		return baseDir + SLASH  + fileName; 
 	}
 	
 	
-	public static String withFrontSlash(String path) {
+	public static String fixSlashes(String path) {
 		return path.replace("\\", "/").replaceAll("/{2,}", "/");
 	}
 	
