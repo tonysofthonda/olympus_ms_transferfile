@@ -6,6 +6,6 @@
     <entry key="port">2222</entry>
     <entry key="user">mft_win_hdm_qa</entry>
     <entry key="pass">Flag@458</entry>
-    <entry key="inbound">%s/ms.transferfile/inbound</entry>
+    <entry key="inbound">/ms.transferfile/inbound</entry>
     <entry key="destination">%s/ms.transferfile/destination</entry>
 </properties>

@@ -21,4 +21,4 @@ ms:
       
 mftp: 
    ext: 
-      host: mftp.ext.host
+      host: 13.56.227.168
