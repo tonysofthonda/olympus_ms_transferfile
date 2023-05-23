@@ -93,15 +93,15 @@ public class MftpService
 	
 	
 	private Event connectionOkEvent() {
-		return new Event(serviceName, _SUCCESS, format(MSG_CONNECTION_OK, config.host(), config.port()), "");
+		return new Event(serviceName, _SUCCESS, format(MSG_CONNECTION_OK, config.getHost(), config.getPort()), "");
 	}
 	
 	private Event connectionErrorEvent() {
-		return new Event(serviceName, _FAIL, format(MSG_CONNECTION_ERROR, config.host(), config.port()), "");
+		return new Event(serviceName, _FAIL, format(MSG_CONNECTION_ERROR, config.getHost(), config.getPort()), "");
 	}
 	
 	private Event searchErrorEvent(String fileName) {
-		return new Event(serviceName, _FAIL, format(MSG_SEARCH_ERROR, fileName, config.inbound()), fileName);
+		return new Event(serviceName, _FAIL, format(MSG_SEARCH_ERROR, fileName, config.getInbound()), fileName);
 	}
 	
 	private Event infoErrorEvent(String fileName) {
@@ -117,7 +117,7 @@ public class MftpService
 	}
 	
 	private Event downloadErrorEvent(String fileName, String newFileName) {
-		return new Event(serviceName, _FAIL, format(MSG_DOWNLOAD_ERROR, newFileName, config.destination()), fileName);
+		return new Event(serviceName, _FAIL, format(MSG_DOWNLOAD_ERROR, newFileName, config.getDestination()), fileName);
 	}
 	
 }

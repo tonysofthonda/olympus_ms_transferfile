@@ -7,9 +7,11 @@ import com.honda.olympus.ms.transferfile.util.FileUtil;
 import com.honda.olympus.ms.transferfile.util.NetUtil;
 
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 
 @Data
+@Slf4j
 @Component
 public class MftpConfig 
 {
@@ -34,14 +36,12 @@ public class MftpConfig
 		this.host = NetUtil.isSiteLocalAddress() ? internalHost : externalHost;
 		this.inbound = FileUtil.fixSlashes( String.format(inbound, BASE_DIR) );
 		this.destination = FileUtil.fixSlashes( String.format(destination, BASE_DIR) );
+		
+		log.info(">> mftp host: {}", this.host);
+		log.info(">> mftp inbound: {}", this.inbound);
+		log.info(">> mftp destination: {}", this.destination);
+		
+		FileUtil.createDir(this.destination);
 	}
-	
-	
-	public String host() { return host; }
-	public int port() { return port; }
-	public String user() { return user; }
-	public String pass() { return pass; }
-	public String inbound() { return inbound; }
-	public String destination() { return destination; }
 	
 }

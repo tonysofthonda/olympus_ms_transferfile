@@ -35,28 +35,22 @@ public class MftpClient
 		this.config = config;
 		
 		this.fileName = fileName;
-		this.input = FileUtil.fixSlashes( FileUtil.concat(config.inbound(), fileName) );
+		this.input = FileUtil.fixSlashes( FileUtil.concat(config.getInbound(), fileName) );
 		
 		this.newFileName = newFileName;
-		this.output = FileUtil.fixSlashes( FileUtil.concat(config.destination(), newFileName) );
-		
-		log.info("# mftp host: {}", config.host());
-		log.info("# mftp inbound: {}", config.inbound());
-		log.info("# mftp destination: {}", config.destination());
-		
-		FileUtil.createDir(config.destination());
+		this.output = FileUtil.fixSlashes( FileUtil.concat(config.getDestination(), newFileName) );
 	}
 	
 	
 	public void setFileName(String fileName) {
 		this.fileName = fileName;
-		this.input = FileUtil.fixSlashes( FileUtil.concat(config.inbound(), fileName) );
+		this.input = FileUtil.fixSlashes( FileUtil.concat(config.getInbound(), fileName) );
 	}
 	
 	
 	public void setNewFileName(String newFileName) {
 		this.newFileName = newFileName;
-		this.output = FileUtil.fixSlashes( FileUtil.concat(config.destination(), newFileName) );
+		this.output = FileUtil.fixSlashes( FileUtil.concat(config.getDestination(), newFileName) );
 	}
 	
 	
@@ -66,8 +60,8 @@ public class MftpClient
 			ftp = new FTPClient();
 	        ftp.addProtocolCommandListener(new PrintCommandListener(new PrintWriter(System.out)));
 	        
-	        ftp.connect(config.host(), config.port());
-	        ftp.login(config.user(), config.pass());
+	        ftp.connect(config.getHost(), config.getPort());
+	        ftp.login(config.getUser(), config.getPass());
 	        
 	        int reply = ftp.getReplyCode();
 	        if (!FTPReply.isPositiveCompletion(reply)) 
