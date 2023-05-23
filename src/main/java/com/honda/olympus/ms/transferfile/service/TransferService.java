@@ -57,7 +57,7 @@ public class TransferService
 			}
 		}
 		else {
-			Event event = statusErrorEvent(message.file());
+			Event event = statusErrorEvent(message, message.file());
 			logEventService.logEvent(event);
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, event.msg());
 		}
@@ -74,8 +74,8 @@ public class TransferService
 			.toString();
 	}
 	
-	private Event statusErrorEvent(String fileName) {
-		return new Event(serviceName, Status._FAIL, String.format(MSG_STATUS_ERROR, fileName), fileName);
+	private Event statusErrorEvent(Message message, String fileName) {
+		return new Event(serviceName, Status._FAIL, String.format(MSG_STATUS_ERROR, message), fileName);
 	}
 	
 	private Event fileErrorEvent() {
