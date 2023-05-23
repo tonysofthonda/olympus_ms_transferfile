@@ -13,6 +13,7 @@ import org.mockftpserver.fake.filesystem.DirectoryEntry;
 import org.mockftpserver.fake.filesystem.FileEntry;
 import org.mockftpserver.fake.filesystem.FileSystem;
 import org.mockftpserver.fake.filesystem.UnixFakeFileSystem;
+
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 
 
@@ -22,17 +23,19 @@ public class MftpClientTest
 {
 	
 	static final String HOST = "localhost";
-	static final int PORT = 2222;
-	static final String USER = "mft_win_hdm_qa";
-	static final String PWD = "Flag@458";
-	static final String INBOUND = "/ms.transferfile/inbound/";
-	static final String DESTINATION = "%s/ms.transferfile/destination/";
+	static final int PORT = 111;
+	static final String USER = "hdm_qa";
+	static final String PWD = "pass@457";
+	static final String INBOUND = "/inbound_/";
+	static final String DESTINATION = "%s/destination_/";
 	
 	static final String FILE_NAME = "processFileExample.txt";
 	static final String NEW_FILE_NAME = "ahm20200401153355.txt";
 	static final String FILE_CONTENT = "CHANGEORD1000000SSORG_TYPECONFIG_ID000000009...";
 	static final String EMPTY_FILE = "empty.txt";
 	static final String EMPTY_CONTENT = "";
+	
+	static final String TMP_DIR = System.getProperty("java.io.tmpdir");
 	
 	static FakeFtpServer fakeFtpServer;
 	static MftpConfig mftpConfig;
