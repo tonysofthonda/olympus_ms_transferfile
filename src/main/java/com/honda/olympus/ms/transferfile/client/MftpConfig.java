@@ -37,9 +37,9 @@ public class MftpConfig
 		this.inbound = FileUtil.fixSlashes( String.format(inbound, BASE_DIR) );
 		this.destination = FileUtil.fixSlashes( String.format(destination, BASE_DIR) );
 		
-		log.info(">> mftp host: {}", this.host);
-		log.info(">> mftp inbound: {}", this.inbound);
-		log.info(">> mftp destination: {}", this.destination);
+		log.info("# mftp host: {}", this.host);
+		log.info("# mftp inbound: {}", this.inbound);
+		log.info("# mftp destination: {}", this.destination);
 		
 		FileUtil.createDir(this.destination);
 	}

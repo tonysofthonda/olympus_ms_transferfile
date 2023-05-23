@@ -45,10 +45,10 @@ public class TransferService
 	
 	public void transferFile(Message message) 
 	{
-		if (message.status() == Status._SUCCESS) 
+		if (message.getStatus() == Status._SUCCESS) 
 		{
-			if (StringUtils.hasText(message.file())) {
-				mftpService.transferFile(message.file(), getNewFileName());
+			if (StringUtils.hasText(message.getFile())) {
+				mftpService.transferFile(message.getFile(), getNewFileName());
 			}
 			else {
 				Event event = fileErrorEvent();
@@ -57,7 +57,7 @@ public class TransferService
 			}
 		}
 		else {
-			Event event = statusErrorEvent(message, message.file());
+			Event event = statusErrorEvent(message, message.getFile());
 			logEventService.logEvent(event);
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, event.msg());
 		}

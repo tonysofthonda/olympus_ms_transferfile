@@ -26,7 +26,4 @@ public class Message
 	
 	private String file;
 	
-	public Integer status() { return status; }
-	public String msg() { return msg; }
-	public String file() { return file; }
 }
