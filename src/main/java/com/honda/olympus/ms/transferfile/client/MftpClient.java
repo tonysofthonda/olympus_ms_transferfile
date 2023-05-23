@@ -81,6 +81,7 @@ public class MftpClient
 	
 	public boolean fileExists() {
 		try {
+			ftp.enterLocalPassiveMode();
 			FTPFile[] list = ftp.listFiles(input);
 			
 			if (list.length == 0) {
@@ -98,6 +99,7 @@ public class MftpClient
 	}
 	
 	public boolean isFileEmtpy() {  // depends on previous execution of fileExists()
+		log.error("### Remote file '{}' is empty (will be deleted !)", fileName);
 		return remoteFile.getSize() == 0;
 	}
 	
@@ -134,6 +136,7 @@ public class MftpClient
 				log.error("### Can't delete remote file '{}'", fileName);
 				return false;
 			}
+			
 			return true;
 		}
 		catch (IOException ioe) {
