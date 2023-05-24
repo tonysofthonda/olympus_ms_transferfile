@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import com.honda.olympus.ms.transferfile.domain.Event;
-import static com.honda.olympus.ms.transferfile.util.NetUtil.*;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -23,15 +22,9 @@ public class NotificationClient
 	private String url;                                    
 	
 	
-	public NotificationClient(
-		@Value("${ms.notification.url}") String url, 
-		@Value("${ms.notification.path}") String path, 
-		@Value("${ms.notification.port}") int port)
-	{
-		String baseUrl = isSiteLocalAddress() ? buildLocalBaseUrl(false, port) : url;
-		this.url = fixSlashes(concat(baseUrl, path));
-		
-		log.info("# ms.notification url: {}", this.url);
+	public NotificationClient(@Value("${ms.notification.url}") String url) {
+		this.url = url;
+		log.info("# ms.notification url: {}", url);
 	}
 	
 	

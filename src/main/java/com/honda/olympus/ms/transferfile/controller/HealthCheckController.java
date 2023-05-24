@@ -15,10 +15,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class HealthCheckController 
 {
 
-	@Value("${ms.transferfile.name}")
+	@Value("${service.name}")
 	private String name;
 	
-	@Value("${ms.transferfile.version}")
+	@Value("${service.version}")
 	private String version; 
 	
 	

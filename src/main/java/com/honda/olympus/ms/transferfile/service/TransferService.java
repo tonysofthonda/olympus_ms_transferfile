@@ -39,7 +39,7 @@ public class TransferService
 	private LogEventService logEventService;
 	
 	
-	@Value("${ms.transferfile.name}")
+	@Value("${service.name}")
 	private String serviceName; 
 	
 	

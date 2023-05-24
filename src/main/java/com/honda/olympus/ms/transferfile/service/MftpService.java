@@ -36,7 +36,7 @@ public class MftpService
 	@Autowired private ProcessFileService processFileService;
 	
 	
-	@Value("${ms.transferfile.name}")
+	@Value("${service.name}")
 	private String serviceName; 
 	
 	

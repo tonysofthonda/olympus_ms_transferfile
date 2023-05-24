@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import com.honda.olympus.ms.transferfile.domain.Event;
-import static com.honda.olympus.ms.transferfile.util.NetUtil.*;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -23,15 +22,9 @@ public class LogEventClient
 	private String url; 
 	
 	
-	public LogEventClient(
-		@Value("${ms.logevent.url}") String url, 
-		@Value("${ms.logevent.path}") String path, 
-		@Value("${ms.logevent.port}") int port) 
-	{
-		String baseUrl = isSiteLocalAddress() ? buildLocalBaseUrl(false, port) : url;
-		this.url = fixSlashes(concat(baseUrl, path));
-		
-		log.info("# ms.logevent url: {}", this.url);
+	public LogEventClient(@Value("${ms.logevent.url}") String url) {
+		this.url = url;
+		log.info("# ms.logevent url: {}", url);
 	}
 	
 	
