@@ -3,7 +3,7 @@
 
 <properties>
     <entry key="host">127.0.0.1</entry>
-    <entry key="port">21</entry>
+    <entry key="port">2222</entry>
     <entry key="user">mft_win_hdm_qa</entry>
     <entry key="pass">Flag@458</entry>
     <entry key="inbound">/ms.transferfile/inbound</entry>
