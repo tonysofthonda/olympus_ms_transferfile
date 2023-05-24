@@ -14,7 +14,6 @@ import com.honda.olympus.ms.transferfile.util.FileUtil;
 import lombok.extern.slf4j.Slf4j;
 
 
-
 @Slf4j
 public class MftpClient 
 { 
@@ -30,23 +29,21 @@ public class MftpClient
 	private FTPFile remoteFile;
 	
 	
-	
 	public MftpClient(MftpConfig config, String fileName, String newFileName) {
 		this.config = config;
-		
 		this.fileName = fileName;
 		this.input = FileUtil.fixSlashes( FileUtil.concat(config.getInbound(), fileName) );
-		
 		this.newFileName = newFileName;
 		this.output = FileUtil.fixSlashes( FileUtil.concat(config.getDestination(), newFileName) );
 	}
 	
 	
+	// setter methods added for testing purposes only
+	
 	public void setFileName(String fileName) {
 		this.fileName = fileName;
 		this.input = FileUtil.fixSlashes( FileUtil.concat(config.getInbound(), fileName) );
 	}
-	
 	
 	public void setNewFileName(String newFileName) {
 		this.newFileName = newFileName;
@@ -81,7 +78,7 @@ public class MftpClient
 	
 	public boolean fileExists() {
 		try {
-			ftp.enterLocalPassiveMode();
+			ftp.enterLocalPassiveMode();   // controls local passive mode 
 			FTPFile[] list = ftp.listFiles(input);
 			
 			if (list.length == 0) {
@@ -98,7 +95,8 @@ public class MftpClient
 		}
 	}
 	
-	public boolean isFileEmtpy() {  // depends on previous execution of fileExists()
+	// depends on previous execution of fileExists()
+	public boolean isFileEmtpy() {  
 		log.error("### Remote file '{}' is empty (will be deleted !)", fileName);
 		return remoteFile.getSize() == 0;
 	}

@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.honda.olympus.ms.transferfile.util.FileUtil;
-import com.honda.olympus.ms.transferfile.util.NetUtil;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -18,9 +17,8 @@ public class MftpConfig
 	
 	private static final String BASE_DIR = System.getProperty("java.io.tmpdir");
 	
-	
 	private String host;
-	@Value("${port}") private int port;
+	private int port;
 	@Value("${user}") private String user;
 	@Value("${pass}") private String pass;
 	private String inbound;
@@ -28,16 +26,18 @@ public class MftpConfig
 	
 	
 	public MftpConfig(
-		@Value("${host}") String internalHost, 
-		@Value("${mftp.ext.host}") String externalHost, 
-		@Value("${inbound}") String inbound, 
+		@Value("${host}") String host, 
+		@Value("${port}") int port, 
+		@Value("${inbound}") String inbound,  
 		@Value("${destination}") String destination) 
 	{
-		this.host = NetUtil.isSiteLocalAddress() ? internalHost : externalHost;
+		this.host = host;
+		this.port = port;
 		this.inbound = FileUtil.fixSlashes( String.format(inbound, BASE_DIR) );
 		this.destination = FileUtil.fixSlashes( String.format(destination, BASE_DIR) );
 		
-		log.info("# mftp host: {}", this.host);
+		log.info("# mftp host: {}", host);
+		log.info("# mftp port: {}", port);
 		log.info("# mftp inbound: {}", this.inbound);
 		log.info("# mftp destination: {}", this.destination);
 		
