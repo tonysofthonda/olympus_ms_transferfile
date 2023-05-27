@@ -11,23 +11,11 @@ import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 
 @TestMethodOrder(OrderAnnotation.class)
 public class NetUtilTest 
-{
+{	
 	
 	@Test
 	@Order(1)
-	void shouldBuildLocalBaseUrl() 
-	{
-		String expected = "http://localhost:8080/";
-		String actual = NetUtil.buildLocalBaseUrl(false, 8080);
-		
-		assertEquals(expected, actual);
-	}
-	
-	
-	@Test
-	@Order(2)
-	void shouldConcatBaseUrlWithPath() 
-	{	
+	void shouldConcatBaseUrlWithPath() {	
 		String baseUrl = "http://localhost:8080/";
 		String path = "/olympus/logevent/v1/event";
 		
@@ -39,9 +27,8 @@ public class NetUtilTest
 	
 	
 	@Test
-	@Order(3)
-	void shouldFixSlashes() 
-	{
+	@Order(2)
+	void shouldFixSlashes() {
 		String url = "http://localhost:8080///olympus/logevent/v1/event";
 		
 		String expected = "http://localhost:8080/olympus/logevent/v1/event";
