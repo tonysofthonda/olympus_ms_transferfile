@@ -1,5 +1,8 @@
 package com.honda.olympus.ms.transferfile.client;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -22,10 +25,15 @@ public class NotificationClient
 	private String url;                                    
 	
 	
-	public NotificationClient(@Value("${ms.notification.url}") String url) {
-		this.url = url;
-		log.info("# ms.notification url: {}", url);
-	}
+	public NotificationClient(
+			@Value("${ms.notification.protocol}") String protocol, 
+			@Value("${ms.notification.host}") String host, 
+			@Value("${ms.notification.port}") int port,
+			@Value("${ms.notification.path}") String path) throws MalformedURLException 
+		{
+			url = new URL(protocol, host, port, path).toString();
+			log.info("# ms.notification url: {}", url);
+		}
 	
 	
 	public ResponseEntity<String> sendNotification(Event event) {
@@ -35,7 +43,7 @@ public class NotificationClient
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		
 		HttpEntity<Event> httpEntity = new HttpEntity<>(event, headers);
-		return restTemplate.exchange(this.url, HttpMethod.POST, httpEntity, String.class);
+		return restTemplate.exchange(url, HttpMethod.POST, httpEntity, String.class);
 	}
 	
 }
