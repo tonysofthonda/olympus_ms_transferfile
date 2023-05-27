@@ -51,7 +51,6 @@ public class MftpClient
 	}
 	
 	
-	
 	public boolean open() {
 		try {
 			ftp = new FTPClient();
@@ -59,6 +58,8 @@ public class MftpClient
 	        
 	        ftp.connect(config.getHost(), config.getPort());
 	        ftp.login(config.getUser(), config.getPass());
+	        
+	        ftp.enterLocalPassiveMode();
 	        
 	        int reply = ftp.getReplyCode();
 	        if (!FTPReply.isPositiveCompletion(reply)) 
@@ -78,7 +79,6 @@ public class MftpClient
 	
 	public boolean fileExists() {
 		try {
-			ftp.enterLocalPassiveMode();   // controls local passive mode 
 			FTPFile[] list = ftp.listFiles(input);
 			
 			if (list.length == 0) {
@@ -86,7 +86,7 @@ public class MftpClient
 				return false;
 			}
 			
-			remoteFile = list[0];  // keep file info used by isFileEmpty()
+			remoteFile = list[0];
 			return true;
 		}
 		catch (IOException ioe) {
@@ -95,10 +95,13 @@ public class MftpClient
 		}
 	}
 	
-	// depends on previous execution of fileExists()
+	
 	public boolean isFileEmtpy() {  
-		log.error("### Remote file '{}' is empty (will be deleted !)", fileName);
-		return remoteFile.getSize() == 0;
+		if (remoteFile.getSize() == 0) {
+			log.error("### Remote file '{}' is empty (will be deleted !)", fileName);
+			return true;
+		}
+		return false;
 	}
 	
 	
