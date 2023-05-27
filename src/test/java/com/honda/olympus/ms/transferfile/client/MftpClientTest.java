@@ -67,10 +67,8 @@ public class MftpClientTest
 	
 	static void loadMftpConfig() {
 		mftpConfig = new MftpConfig(HOST, PORT, INBOUND, DESTINATION);
-		mftpConfig.setPort(PORT);
 		mftpConfig.setUser(USER);
 		mftpConfig.setPass(PWD);
-		mftpConfig.setInbound(INBOUND);
 	}
 	
 	static void loadMftpClient() {
