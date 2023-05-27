@@ -43,23 +43,23 @@ public class TransferService
 	private String serviceName; 
 	
 	
-	public void transferFile(Message message) 
+	public void downloadFile(Message message) 
 	{
 		if (message.getStatus() == Status._SUCCESS) 
 		{
 			if (StringUtils.hasText(message.getFile())) {
-				mftpService.transferFile(message.getFile(), getNewFileName());
+				mftpService.downloadFile(message.getFile(), getNewFileName());
 			}
 			else {
 				Event event = fileErrorEvent();
 				logEventService.logEvent(event);
-				throw new ResponseStatusException(HttpStatus.BAD_REQUEST, event.msg());
+				throw new ResponseStatusException(HttpStatus.BAD_REQUEST, event.getMsg());
 			}
 		}
 		else {
-			Event event = statusErrorEvent(message, message.getFile());
+			Event event = statusErrorEvent(message);
 			logEventService.logEvent(event);
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, event.msg());
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, event.getMsg());
 		}
 	}
 	
@@ -74,8 +74,8 @@ public class TransferService
 			.toString();
 	}
 	
-	private Event statusErrorEvent(Message message, String fileName) {
-		return new Event(serviceName, Status._FAIL, String.format(MSG_STATUS_ERROR, message), fileName);
+	private Event statusErrorEvent(Message message) {
+		return new Event(serviceName, Status._FAIL, String.format(MSG_STATUS_ERROR, message), message.getFile());
 	}
 	
 	private Event fileErrorEvent() {

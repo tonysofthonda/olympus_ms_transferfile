@@ -51,7 +51,7 @@ public class TransferServiceTest
 	void exceptionWithInvalidStatus() {
 		Message message = new Message(Status._FAIL, Status.FAIL, "");
 		
-		assertThatThrownBy(() -> transferService.transferFile(message))
+		assertThatThrownBy(() -> transferService.downloadFile(message))
 			.isInstanceOf(ResponseStatusException.class)
 			.hasMessageContaining("El mensaje tiene un status no aceptado para el proceso ");
 	}
@@ -62,7 +62,7 @@ public class TransferServiceTest
 	void exceptionWithInvalidFile() {
 		Message message = new Message(Status._SUCCESS, Status.SUCCESS, "");
 		
-		assertThatThrownBy( () -> transferService.transferFile(message) )
+		assertThatThrownBy( () -> transferService.downloadFile(message) )
 			.isInstanceOf(ResponseStatusException.class)
 			.hasMessageContaining("NO se recibió el nombre del archivo");
 	}
@@ -72,7 +72,7 @@ public class TransferServiceTest
 	@Order(3)
 	void noExceptionWithValidMessage() {
 		Message message = new Message(Status._SUCCESS, Status.SUCCESS, "file.txt");
-		assertDoesNotThrow(() -> transferService.transferFile(message));
+		assertDoesNotThrow(() -> transferService.downloadFile(message));
 	}
 	
 	

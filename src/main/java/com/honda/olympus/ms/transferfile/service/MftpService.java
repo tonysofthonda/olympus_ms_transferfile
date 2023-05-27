@@ -40,19 +40,19 @@ public class MftpService
 	private String serviceName; 
 	
 	
-	public void transferFile(String fileName, String newFileName) {
+	public void downloadFile(String fileName, String newFileName) {
 		MftpClient client = new MftpClient(config, fileName, newFileName);
-		transferFile(client, fileName, newFileName);
+		downloadFile(client, fileName, newFileName);
 	}
 	
-	public void transferFile(MftpClient client, String fileName, String newFileName) 
+	public void downloadFile(MftpClient client, String fileName, String newFileName) 
 	{	
 		// connect to mftp server
 		if (!client.open()) {
 			Event event = connectionErrorEvent();
 			logEventService.logEvent(event);
 			notificationService.sendNotification(event);
-			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, event.msg());
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, event.getMsg());
 		}
 		logEventService.logEvent( connectionOkEvent() );
 		
@@ -61,7 +61,7 @@ public class MftpService
 			client.close();
 			Event event = searchErrorEvent(fileName);
 			logEventService.logEvent(event);
-			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, event.msg());
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, event.getMsg());
 		}
 		
 		// verify if empty
@@ -71,7 +71,7 @@ public class MftpService
 			Event event = infoErrorEvent(fileName);
 			logEventService.logEvent(event);
 			notificationService.sendNotification(event);
-			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, event.msg());
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, event.getMsg());
 		}
 		
 		// download file
@@ -87,7 +87,7 @@ public class MftpService
 			Event event = downloadErrorEvent(fileName, newFileName);
 			logEventService.logEvent(event);
 			notificationService.sendNotification(event);
-			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, event.msg());
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, event.getMsg());
 		}
 	}
 	

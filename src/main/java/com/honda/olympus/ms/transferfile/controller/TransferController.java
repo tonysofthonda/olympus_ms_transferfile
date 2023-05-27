@@ -39,10 +39,10 @@ public class TransferController
 	
 	
 	@PostMapping(path = "/message", consumes = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<String> transferFile(@Valid @RequestBody Message message, Errors errors)
+	public ResponseEntity<String> downloadFile(@Valid @RequestBody Message message, Errors errors)
 	{
 		handleBadRequest(message, errors);
-		this.transferService.transferFile(message);
+		this.transferService.downloadFile(message);
 		
 		return ResponseEntity.ok(HttpStatus.OK.getReasonPhrase());
 	}

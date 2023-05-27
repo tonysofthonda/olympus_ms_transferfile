@@ -56,7 +56,7 @@ public class MftpServiceTest
 		MftpClient mftpClient = mock(MftpClient.class);
 		when(mftpClient.open()).thenReturn(false);
 		
-		assertThatThrownBy( () -> mftpService.transferFile(mftpClient, FILE_NAME, NEW_FILE_NAME) )
+		assertThatThrownBy( () -> mftpService.downloadFile(mftpClient, FILE_NAME, NEW_FILE_NAME) )
 			.isInstanceOf(ResponseStatusException.class)
 			.hasMessageContaining("Fallo de conexión al sitio MFTP, con los siguientes datos");
 	}
@@ -71,7 +71,7 @@ public class MftpServiceTest
 		when(mftpClient.open()).thenReturn(true);
 		when(mftpClient.fileExists()).thenReturn(false);
 		
-		assertThatThrownBy( () -> mftpService.transferFile(mftpClient, FILE_NAME, NEW_FILE_NAME) )
+		assertThatThrownBy( () -> mftpService.downloadFile(mftpClient, FILE_NAME, NEW_FILE_NAME) )
 			.isInstanceOf(ResponseStatusException.class)
 			.hasMessageContaining("El archivo " + FILE_NAME + ", no encontrado en la ubicación");
 	}
@@ -87,7 +87,7 @@ public class MftpServiceTest
 		when(mftpClient.fileExists()).thenReturn(true);
 		when(mftpClient.isFileEmtpy()).thenReturn(true);
 		
-		assertThatThrownBy( () -> mftpService.transferFile(mftpClient, FILE_NAME, NEW_FILE_NAME) )
+		assertThatThrownBy( () -> mftpService.downloadFile(mftpClient, FILE_NAME, NEW_FILE_NAME) )
 			.isInstanceOf(ResponseStatusException.class)
 			.hasMessageContaining("El archivo " + FILE_NAME + " no tiene información");
 	}
@@ -104,7 +104,7 @@ public class MftpServiceTest
 		when(mftpClient.isFileEmtpy()).thenReturn(false);
 		when(mftpClient.downloadFile()).thenReturn(false);
 		
-		assertThatThrownBy( () -> mftpService.transferFile(mftpClient, FILE_NAME, NEW_FILE_NAME) )
+		assertThatThrownBy( () -> mftpService.downloadFile(mftpClient, FILE_NAME, NEW_FILE_NAME) )
 			.isInstanceOf(ResponseStatusException.class)
 			.hasMessageContaining("Fallo al momento de realizar la copia del archivo " + NEW_FILE_NAME 
 				+ ", a la siguiente ubicación definida");
@@ -122,7 +122,7 @@ public class MftpServiceTest
 		when(mftpClient.isFileEmtpy()).thenReturn(false);
 		when(mftpClient.downloadFile()).thenReturn(true);
 		
-		assertDoesNotThrow( () -> mftpService.transferFile(mftpClient, FILE_NAME, NEW_FILE_NAME) );
+		assertDoesNotThrow( () -> mftpService.downloadFile(mftpClient, FILE_NAME, NEW_FILE_NAME) );
 	}
 	
 }
