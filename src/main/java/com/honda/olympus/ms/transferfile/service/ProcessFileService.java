@@ -32,7 +32,7 @@ public class ProcessFileService
 			return exception.getStatusCode();
 		}
 		catch (RestClientException exception) {
-			log.error("### Unable to connect to the ProcessFile endpoint !", exception);
+			log.error("### Unable to connect to the ProcessFile endpoint !");
 			return null;
 		}
 	}
