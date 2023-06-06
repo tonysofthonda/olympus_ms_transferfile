@@ -1,107 +1,106 @@
 
-# Transfer File Microservice [ms.transferfile]  
-Este microservicio se encarga de recuperar los archivos almacenados en el servidor MFTP.  
+Transfer File Microservice [ms.transferfile]  
+This microservice is responsible for retrieving files sotered on the MFTP server. 
 
 
-## Cómo funciona  
-1. **ms.transferfile** recibe el mensaje de un *cliente http* indicando la descarga de un archivo  
-2. Verifica que el archivo exista y que contenga información  
-3. Descarga una copia en el host local y elimina la original del servidor MFTP  
-4. Notifica la operación realizada a los servicios **ms.logevent**, **ms.notification** y **ms.processfile**  
+
+How it Works 
+1. **ms.transferfile** Receive the message from a *customer http* indicating the dowload of a file.  
+2. Verify that the file exists and contains information.  
+3. Download a copy to the local host and delete the original from the server MFTP  
+4. Notifies the services of the operation**ms.logevent**, **ms.notification** y **ms.processfile**  
 
 
-## Descripción de la configuración  
-Datos relevantes contenidos en los archivos y clases de configuración del proyecto:  
+Understanding the configuraction  
+Relevant data contained in project configuration files and classes:  
 
-#### service.properties  
-+ Información básica de **ms.transferfile**  
+service.properties  
+Basic Information **ms.transferfile**  
     - Versión  
-    - Ruta de contexto del servicio  
-    - Puerto asignado  
-+ URLs de servicios requeridos: **ms.logevent**, **ms.notification** y **ms.processfile**  
+    - Service context path   
+    - Port assigned  
+    - URLs of required services: **ms.logevent**, **ms.notification** y **ms.processfile**  
 
-#### properties.xml  
-+ Datos de conexión al servidor MFTP (host, puerto, usuario y password)  
-+ Directorio remoto desde donde se realizarán las descargas (propiedad 'inbound')  
-+ Directorio local en el que se guardarán los archivos recuperados (propiedad 'destination')  
+Properties.xml  
+- MFTP Server connection data (host, puerto, usuario y password)  
+- Remote directory from which downloads will be made (propiedad 'inbound')  
+- Directorio local en el que se guardarán los archivos recuperados (property 'destination')  
 
-#### validation.properties  
-+ Mensajes de validación que retorna el servicio cuando recibe peticiones con datos inválidos  
+Validation.properties  
+- validation messages returned by the service when it receives requestes with invalid data.  
 
-#### Application.java  
-+ Configuración de zona horaria  
-
-
-## Descripción de la implementación  
-Descripción de clases principales:  
-
-#### Message.java  
-+ Clase de dominio para mensajes recibidos de los clientes del servicio
-+ Incluye anotaciones para validación básica de datos
-
-#### MftpConfig.java  
-+ Carga configuración que utilizará el cliente MFTP   
-
-#### MftpClient.java  
-+ Realiza operaciones de bajo nivel para interactuar con servidor MFTP  
-
-#### TransferService.java  
-+ Verifica estatus y nombre de archivo recibidos en el mensaje  
-+ Genera nombre que se asignará al archivo descargado  
-
-#### MftpService.java  
-Contiene la lógica de negocio de la aplicación:  
-+ Con conexión exitosa a servidor MFTP, envía evento a **ms.logevent**  
-+ Con conexión fallida envía evento a **ms.logevent** y **ms.notification**  
-+ Si no encuentra archivo remoto, envía evento a **ms.logevent**  
-+ Si archivo remoto esta vacío, lo borra del servidor MFTP y envía evento a **ms.logevent** y **ms.notification**  
-+ Si no puede descargar archivo, envía evento a **ms.logevent** y **ms.notification**  
-+ Si puede descargar archivo, elimina original en servidor MFTP, envía evento a **ms.logevent** y envía mensaje a **ms.processfile**  
+Application.java  
+- Time zone settings
 
 
-## Ejecución de pruebas unitarias  
-+ Pruebas *sociables*  
-  `$ mvn test -Dtest="LogEventServiceTest1"` con servicio **ms.logevent** detenido en entorno local  
-  `$ mvn test -Dtest="LogEventServiceTest2"` con servicio **ms.logevent** en ejecución en entorno local  
-  `$ mvn test -Dtest="NotificationServiceTest1"` con servicio **ms.notification** detenido en entorno local  
-  `$ mvn test -Dtest="NotificationServiceTest2"` con servicio **ms.notification** en ejecución en entorno local  
-  `$ mvn test -Dtest="ProcessFileServiceTest1"` con servicio **ms.processfile** detenido en entorno local  
-  `$ mvn test -Dtest="ProcessFileServiceTest2"` con servicio **ms.processfile** en ejecución en entorno local  
+Descriptión of the implementatión  
+-Description of main classes:  
+
+Message.java  
+- Domain class for messages received from service clients.
+- Includes annotation for basic data validation.
+
+MftpConfig.java  
+- Loading settings that will be used by MFTP client.   
+
+MftpClient.java  
+- Performs low-level operations to interact with MFTP server. 
+
+TransferService.java  
+- Check statusestatus and files name received in the message.  
+- Generates name to be assigned to the downloaded file.  
+
+MftpService.java  
+Contains the businness logic of the application:  
+- With successful connection to MFTP MFTP server,  post event**ms.logevent**  
+- Connection failed sends event to  **ms.logevent**  
+- If the remote file is empty, deletes it from the MFTP server and send an event to **ms.logevent** y **ms.notification**  
+- If you can't download file, send event **ms.logevent** y **ms.notification**  
+- Download file, delete original on MFTP server send event to **ms.logevent** y envía mensaje a **ms.processfile**  
+
+
+Running Unit Tests  
+- Test *sociable*  
+  `$ mvn test -Dtest="LogEventServiceTest1"` with service  **ms.logevent** Stopped in local environment 
+  `$ mvn test -Dtest="LogEventServiceTest2"` with service **ms.logevent** Stopped in local environment  
+  `$ mvn test -Dtest="NotificationServiceTest1"` with service **ms.notification** Stopped in local environment  
+  `$ mvn test -Dtest="NotificationServiceTest2"` with service **ms.notification** Stopped in local environment   
+  `$ mvn test -Dtest="ProcessFileServiceTest1"` with service **ms.processfile** Stopped in local environment 
+  `$ mvn test -Dtest="ProcessFileServiceTest2"` with service **ms.processfile** Stopped in local environment 
   
-+ Pruebas *solitarias*  
+- Test *solitary*  
   `$ mvn test`
 
 
-## Ejecución de la aplicación  
+Running the application  
 
-+ Generación de WAR  
+- Generation of WAR  
   `$ mvn clean package`  
 
-+ Ejecución de JAR  
+- Execution of JAR  
   `$ mvn spring-boot:run`  
 
 
-## Uso  
+ Use  
 
-### Descarga correcta de archivo  
+Download successful file 
 
-#### Request  
+Request  
     curl -X POST -H 'Content-Type: application/json' -d '{"status": 1, "msg": "SUCCESS", "file": "file.txt"}' http://{server-ip}:8082/olympus/transferfile/v1/message  
 
-#### Response  
+Response  
     HTTP/1.1 200  
     Content-Type: text/plain;charset=UTF-8  
     Content-Length: 2  
     Date: Tue, 16 May 2023 23:26:55 GMT  
-
     OK  
 
-### Descarga de archivo con estatus no permitido  
+File download with disallowed 
 
-#### Request  
+Request  
     curl -X POST -H 'Content-Type: application/json' -d '{"status": 0, "msg": "FAIL", "file": "file.txt"}' http://{server-ip}:8082/olympus/transferfile/v1/message  
 
-#### Response  
+Response  
     HTTP/1.1 400  
     Content-Type: application/json  
     Transfer-Encoding: chunked  
@@ -111,19 +110,19 @@ Contiene la lógica de negocio de la aplicación:
     {"timestamp": "2023-05-24T03:08:41.795-05:00", "status": 400, "error": "Bad Request", "message": "El mensaje tiene un status no aceptado para el proceso Message(status=0, msg=FAIL, file=file1.txt)", "path": "/olympus/transferfile/v1/message"}  
 
 
-## Respuestas HTTP / Causa  
+Responses HTTP / Cause  
 
-#### 200 OK  
-+ El archivo solicitado se descargó correctamente  
+200 OK  
+- The requested file was successfully downloaded
 
-#### 400 Bad Request  
-+ Atributo **{message.status}** nulo  
-+ Atributo **{message.msg}** nulo o vacío  
-+ El valor del atributo **{message.status}** no es 1 (SUCCESS)  
-+ El valor del atributo **{message.status}** es 1 (SUCCESS), pero **{message.file}** es nulo o vacío  
+400 Bad Request  
+- Attribute **{message.status}** null 
+- Attribute  **{message.msg}** nullo or vacum
+- The value of the attribute **{message.status}** It's not 1 (SUCCESS)  
+- The value of the attribute**{message.status}** is 1 (SUCCESS), bur **{message.file}** in null or empty 
 
-#### 500 Internal Server Error  
-+ Sin conexión a servidor MFTP  
-+ No se encuentra archivo solicitado en servidor MFTP  
-+ El archivo solicitado está vacío  
-+ Descarga fallida de archivo  
+500 Internal Server Error  
+- No connection to MFTP server.  
++ No requested file found on MFTP server.  
++ The requested file is empty   
++ Download Failed file.  
