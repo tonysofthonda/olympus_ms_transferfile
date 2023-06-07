@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+
+<properties>
+    <entry key="mftp.host">54.193.3.9</entry>
+    <entry key="mftp.port">21</entry>
+    <entry key="mftp.user">mft_win_hdm_qa</entry>
+    <entry key="mftp.pass">Flag@45</entry>
+    <entry key="mftp.inbound">/ms.transferfile/inbound</entry>
+    <entry key="mftp.destination">%s/ms.transferfile/destination</entry>
+</properties>

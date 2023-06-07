@@ -15,10 +15,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class HealthCheckController 
 {
 
-	@Value("${name}")
+	@Value("${service.name}")
 	private String name;
 	
-	@Value("${version}")
+	@Value("${service.version}")
 	private String version; 
 	
 	
