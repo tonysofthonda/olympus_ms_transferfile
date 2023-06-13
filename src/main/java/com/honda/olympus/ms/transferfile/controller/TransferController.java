@@ -22,6 +22,8 @@ import com.honda.olympus.ms.transferfile.domain.Status;
 import com.honda.olympus.ms.transferfile.service.LogEventService;
 import com.honda.olympus.ms.transferfile.service.TransferService;
 
+import io.swagger.v3.oas.annotations.Operation;
+
 
 @RestController
 public class TransferController 
@@ -37,7 +39,7 @@ public class TransferController
 	@Value("${service.name}")
 	private String serviceName; 
 	
-	
+	@Operation(summary = "Transfer the given file by name")
 	@PostMapping(path = "/message", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<String> downloadFile(@Valid @RequestBody Message message, Errors errors)
 	{
