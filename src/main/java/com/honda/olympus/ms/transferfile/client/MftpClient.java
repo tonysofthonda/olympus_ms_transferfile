@@ -1,15 +1,23 @@
 package com.honda.olympus.ms.transferfile.client;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
-
-import org.apache.commons.net.PrintCommandListener;
-import org.apache.commons.net.ftp.FTPClient;
-import org.apache.commons.net.ftp.FTPFile;
-import org.apache.commons.net.ftp.FTPReply;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 
 import com.honda.olympus.ms.transferfile.util.FileUtil;
+import com.jcraft.jsch.Channel;
+import com.jcraft.jsch.ChannelSftp;
+import com.jcraft.jsch.ChannelSftp.LsEntry;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.Session;
+import com.jcraft.jsch.SftpException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -18,15 +26,17 @@ import lombok.extern.slf4j.Slf4j;
 public class MftpClient 
 { 
 	
-	private FTPClient ftp;
 	private MftpConfig config;
-	
 	private String fileName;
 	private String input;
 	private String newFileName;  
 	private String output;
 	
-	private FTPFile remoteFile;
+	private Channel channel = null;
+	private ChannelSftp channelSftp = null;
+	private InputStream is;
+	 public static final int DEFAULT_BUFFER_SIZE = 8192;
+
 	
 	
 	public MftpClient(MftpConfig config, String fileName, String newFileName) {
@@ -53,94 +63,91 @@ public class MftpClient
 	
 	public boolean open() {
 		try {
-			ftp = new FTPClient();
-	        ftp.addProtocolCommandListener(new PrintCommandListener(new PrintWriter(System.out)));
-	        
-	        ftp.connect(config.getHost(), config.getPort());
-	        ftp.login(config.getUser(), config.getPass());
-	        
-	        ftp.enterLocalPassiveMode();
-	        
-	        int reply = ftp.getReplyCode();
-	        if (!FTPReply.isPositiveCompletion(reply)) 
-	        {
-	        	ftp.disconnect();
-	        	log.error("### Can't connect to the ftp server");
-	        	return false;
-	        }
-	        return true;
-		}
-		catch (IOException ioe) {
-			log.error("### Error found while connecting to ftp server", ioe);
+			String pass = config.getPass();
+			JSch jsch = new JSch();
+			Session session = jsch.getSession(config.getUser(),config.getHost(), config.getPort());
+			session.setConfig("StrictHostKeyChecking", "no");
+			session.setPassword(pass);
+			session.connect();
+			log.debug("Connection established.");
+			log.debug("Creating SFTP Channel.");
+
+			channel = session.openChannel("sftp");
+			channel.connect();
+
+			return true;
+		} catch (JSchException e4) {
+			log.error("### Error found while connecting to ftp server", e4);
 			return false;
+
 		}
     }
 	
 	
 	public boolean fileExists() {
 		try {
-			FTPFile[] list = ftp.listFiles(input);
-			
-			if (list.length == 0) {
-				log.error("### Can't find remote file '{}'", fileName);
-				return false;
-			}
-			
-			remoteFile = list[0];
+			this.channelSftp = (ChannelSftp) channel;
+			this.channelSftp.get(this.input,this.output);
+		
 			return true;
 		}
-		catch (IOException ioe) {
-			log.error("### Error found while searching remote file '{}'", fileName, ioe);
+		catch (SftpException ioe) {
+			log.error("### Can't find remote file '{}'", fileName);
 			return false;
 		}
 	}
+
+	public boolean isFileEmtpy() {
 	
-	
-	public boolean isFileEmtpy() {  
-		if (remoteFile.getSize() == 0) {
-			log.error("### Remote file '{}' is empty (will be deleted !)", fileName);
-			return true;
+		try {
+		
+			Path path = Paths.get(this.output);
+			
+			long bytes = Files.size(path);
+			if(bytes <=0) {
+				log.error("### Remote file '{}' is empty (will be deleted !)", fileName);
+				Files.delete(path);
+				return true;
+		
+			}
+			
+		} catch (IOException e) {
+			log.error("## Exception due to: {} ",e.getLocalizedMessage());
+			return false;
 		}
+	
 		return false;
 	}
 	
-	
+
 	public boolean downloadFile() {
-		FileOutputStream fos = null;
 		try {
-			fos = new FileOutputStream(output, false);
-		    if (!ftp.retrieveFile(input, fos)) 
-		    {
-		    	log.error("### Can't download remote file '{}'", fileName);
-		    	fos.close();
-		    	FileUtil.removeFile(output);  // remove leftover empty file
+			
+			Path path = Paths.get(this.output);
+			
+			if(path == null) {
+				log.error("### Error found while downloading remote file '{}'", fileName);
 				return false;
-		    }
-			fos.close();
-		    return true;
-		}
-		catch (IOException ioe) {
-			log.error("### Error found while downloading remote file '{}'", fileName, ioe);
-			if (fos != null) {
-				try { fos.close(); } catch (IOException e) { }
 			}
 			
+			
+		    return true;
+		}
+		catch (Exception ioe) {
+			log.error("### Error found while downloading remote file '{}'", fileName, ioe);
 			FileUtil.removeFile(newFileName);
 			return false;
 		}
 	}
 	
-	
 	public boolean deleteFile() {
 		try {
-			if (!ftp.deleteFile(input)) {
-				log.error("### Can't delete remote file '{}'", fileName);
-				return false;
-			}
+			
+			this.channelSftp.rm(this.input);
 			
 			return true;
 		}
-		catch (IOException ioe) {
+		catch (SftpException ioe) {
 			log.error("### Error found while deleting remote file '{}'", fileName, ioe);
 			return false;
 		}
@@ -149,11 +156,10 @@ public class MftpClient
 	
 	public boolean close() {
 		try {
-			ftp.logout();
-			ftp.disconnect();
+			this.channel.disconnect();
 			return true;
 		}
-		catch (IOException ioe) {
+		catch (Exception ioe) {
 			log.error("### Error found while closing connection to ftp server", ioe);
 			return false;
 		}

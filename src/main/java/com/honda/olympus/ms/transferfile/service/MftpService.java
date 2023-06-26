@@ -1,5 +1,8 @@
 package com.honda.olympus.ms.transferfile.service;
 
+import static com.honda.olympus.ms.transferfile.domain.Status.SUCCESS;
+import static com.honda.olympus.ms.transferfile.domain.Status._FAIL;
+import static com.honda.olympus.ms.transferfile.domain.Status._SUCCESS;
 import static java.lang.String.format;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +17,6 @@ import com.honda.olympus.ms.transferfile.domain.Event;
 import com.honda.olympus.ms.transferfile.domain.Message;
 
 import lombok.Setter;
-
-import static com.honda.olympus.ms.transferfile.domain.Status.*;
 
 
 @Setter
