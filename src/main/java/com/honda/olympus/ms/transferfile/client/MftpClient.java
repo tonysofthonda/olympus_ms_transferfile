@@ -32,9 +32,9 @@ public class MftpClient
 	private String newFileName;  
 	private String output;
 	
+	private Session session = null;
 	private Channel channel = null;
 	private ChannelSftp channelSftp = null;
-	private InputStream is;
 	 public static final int DEFAULT_BUFFER_SIZE = 8192;
 
 	
@@ -65,15 +65,15 @@ public class MftpClient
 		try {
 			String pass = config.getPass();
 			JSch jsch = new JSch();
-			Session session = jsch.getSession(config.getUser(),config.getHost(), config.getPort());
-			session.setConfig("StrictHostKeyChecking", "no");
-			session.setPassword(pass);
-			session.connect();
+			this.session = jsch.getSession(config.getUser(),config.getHost(), config.getPort());
+			this.session.setConfig("StrictHostKeyChecking", "no");
+			this.session.setPassword(pass);
+			this.session.connect();
 			log.debug("Connection established.");
 			log.debug("Creating SFTP Channel.");
 
-			channel = session.openChannel("sftp");
-			channel.connect();
+			this.channel = this.session.openChannel("sftp");
+			this.channel.connect();
 
 			return true;
 		} catch (JSchException e4) {
@@ -86,7 +86,7 @@ public class MftpClient
 	
 	public boolean fileExists() {
 		try {
-			this.channelSftp = (ChannelSftp) channel;
+			this.channelSftp = (ChannelSftp) this.channel;
 			this.channelSftp.get(this.input,this.output);
 		
 			return true;
@@ -144,7 +144,7 @@ public class MftpClient
 		try {
 			
 			this.channelSftp.rm(this.input);
-			
+			log.info("File {} remotely deleted",this.input);
 			return true;
 		}
 		catch (SftpException ioe) {
@@ -156,7 +156,12 @@ public class MftpClient
 	
 	public boolean close() {
 		try {
+			this.channelSftp.exit();
+			this.channelSftp.disconnect();
 			this.channel.disconnect();
+			this.session.disconnect();
+			
+			log.info("SFTP channel & session disconnected");
 			return true;
 		}
 		catch (Exception ioe) {

@@ -6,9 +6,6 @@ import java.util.TimeZone;
 
 import javax.annotation.PostConstruct;
 
-import com.honda.olympus.ms.transferfile.config.ApplicationProperties;
-import com.honda.olympus.ms.transferfile.config.DefaultProfileUtil;
-import com.honda.olympus.ms.transferfile.util.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -20,6 +17,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.core.env.Environment;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
+
+import com.honda.olympus.ms.transferfile.config.ApplicationProperties;
+import com.honda.olympus.ms.transferfile.config.DefaultProfileUtil;
+import com.honda.olympus.ms.transferfile.util.Constants;
 
 
 @SpringBootApplication
@@ -51,7 +52,7 @@ public class Application implements InitializingBean {
         Collection<String> activeProfiles = Arrays.asList(env.getActiveProfiles());
         if (activeProfiles.contains(Constants.SPRING_PROFILE_DEVELOPMENT) &&
                 activeProfiles.contains(Constants.SPRING_PROFILE_PRODUCTION)) {
-            log.error("You have misconfigured your application! It should not run with both the 'dev' and 'prod' profiles at the same time.");
+            log.error("Error configuring app to run with both the 'dev' and 'prod' profiles at the same time.");
         }
     }
 
