@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 public class MftpService {
 
 	private static final String MSG_CONNECTION_OK = "Conexión al MFTP %s, %s fue exitosa";
-	private static final String MSG_CONNECTION_ERROR = "Fallo de conexión al sitio MFTP, con los siguientes datos: %s, %s";
+	private static final String MSG_CONNECTION_ERROR = "112 Fallo de conexión al sitio MFTP. No se puede obtener la información correctamente del MFT, favor de revisar";
 	private static final String MSG_SEARCH_ERROR = "El archivo %s, no encontrado en la ubicación %s";
 	private static final String MSG_INFO_ERROR = "El archivo %s no tiene información";
 	private static final String MSG_DOWNLOAD_ERROR = "Fallo al momento de realizar la copia del archivo %s, a la siguiente ubicación definida %s";
@@ -51,7 +51,7 @@ public class MftpService {
 	public void downloadFile(MftpClient client, String fileName, String newFileName) {
 		// connect to mftp server
 		if (!client.open()) {
-			Event event = connectionErrorEvent();
+			Event event = connectionErrorEvent(fileName);
 			logEventService.logEvent(event);
 			notificationService.sendNotification(event);
 			
@@ -107,8 +107,8 @@ public class MftpService {
 		return new Event(serviceName, _SUCCESS, format(MSG_CONNECTION_OK, config.getHost(), config.getPort()), "");
 	}
 
-	private Event connectionErrorEvent() {
-		return new Event(serviceName, _FAIL, format(MSG_CONNECTION_ERROR, config.getHost(), config.getPort()), "");
+	private Event connectionErrorEvent(String fileName) {
+		return new Event(serviceName, _SUCCESS, MSG_CONNECTION_ERROR, fileName);
 	}
 
 	private Event searchErrorEvent(String fileName) {
