@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.concurrent.CountDownLatch;
 
 import com.honda.olympus.ms.transferfile.util.FileUtil;
 import com.jcraft.jsch.Channel;
@@ -23,64 +24,62 @@ import lombok.extern.slf4j.Slf4j;
 
 
 @Slf4j
-public class MftpClient 
-{ 
-	
-	private MftpConfig config;
-	private String fileName;
-	private String input;
-	private String newFileName;  
-	private String output;
-	
-	private Session session = null;
-	private Channel channel = null;
-	private ChannelSftp channelSftp = null;
-	 public static final int DEFAULT_BUFFER_SIZE = 8192;
+public class MftpClient {
 
-	
-	
-	public MftpClient(MftpConfig config, String fileName, String newFileName) {
-		this.config = config;
-		this.fileName = fileName;
-		this.input = FileUtil.fixSlashes( FileUtil.concat(config.getInbound(), fileName) );
-		this.newFileName = newFileName;
-		this.output = FileUtil.fixSlashes( FileUtil.concat(config.getDestination(), newFileName) );
-	}
-	
-	
-	// setter methods added for testing purposes only
-	
-	public void setFileName(String fileName) {
-		this.fileName = fileName;
-		this.input = FileUtil.fixSlashes( FileUtil.concat(config.getInbound(), fileName) );
-	}
-	
-	public void setNewFileName(String newFileName) {
-		this.newFileName = newFileName;
-		this.output = FileUtil.fixSlashes( FileUtil.concat(config.getDestination(), newFileName) );
-	}
-	
-	
-	public boolean open() {
-		try {
-			String pass = config.getPass();
-			JSch jsch = new JSch();
-			this.session = jsch.getSession(config.getUser(),config.getHost(), config.getPort());
-			this.session.setConfig("StrictHostKeyChecking", "no");
-			this.session.setPassword(pass);
-			this.session.connect();
-			log.debug("Connection established.");
-			log.debug("Creating SFTP Channel.");
+    private MftpConfig config;
+    private String fileName;
+    private String input;
+    private String newFileName;
+    private String output;
 
-			this.channel = this.session.openChannel("sftp");
-			this.channel.connect();
+    private Session session = null;
+    private Channel channel = null;
+    private ChannelSftp channelSftp = null;
+    public static final int DEFAULT_BUFFER_SIZE = 8192;
 
-			return true;
-		} catch (JSchException e4) {
-			log.error("### Error found while connecting to ftp server", e4);
-			return false;
 
-		}
+    public MftpClient(MftpConfig config, String fileName, String newFileName) {
+        this.config = config;
+        this.fileName = fileName;
+        this.input = FileUtil.fixSlashes(FileUtil.concat(config.getInbound(), fileName));
+        this.newFileName = newFileName;
+        this.output = FileUtil.fixSlashes(FileUtil.concat(config.getDestination(), newFileName));
+    }
+
+
+    // setter methods added for testing purposes only
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+        this.input = FileUtil.fixSlashes(FileUtil.concat(config.getInbound(), fileName));
+    }
+
+    public void setNewFileName(String newFileName) {
+        this.newFileName = newFileName;
+        this.output = FileUtil.fixSlashes(FileUtil.concat(config.getDestination(), newFileName));
+    }
+
+
+    public boolean open() {
+        try {
+            String pass = config.getPass();
+            JSch jsch = new JSch();
+            this.session = jsch.getSession(config.getUser(), config.getHost(), config.getPort());
+            this.session.setConfig("StrictHostKeyChecking", "no");
+            this.session.setPassword(pass);
+            this.session.connect();
+            log.debug("Connection established.");
+            log.debug("Creating SFTP Channel.");
+
+            this.channel = this.session.openChannel("sftp");
+            this.channel.connect();
+
+            return true;
+        } catch (JSchException e4) {
+            log.error("### Error found while connecting to ftp server", e4);
+            return false;
+
+        }
     }
 	
 	
@@ -97,77 +96,74 @@ public class MftpClient
 		}
 	}
 
-	public boolean isFileEmtpy() {
-	
-		try {
-		
-			Path path = Paths.get(this.output);
-			
-			long bytes = Files.size(path);
-			if(bytes <=0) {
-				log.error("### Remote file '{}' is empty (will be deleted !)", fileName);
-				Files.delete(path);
-				return true;
-		
-			}
-			
-		} catch (IOException e) {
-			log.error("## Exception due to: {} ",e.getLocalizedMessage());
-			return false;
-		}
-	
-		return false;
-	}
-	
+    public boolean isFileEmtpy() {
 
-	public boolean downloadFile() {
-		try {
-			
-			Path path = Paths.get(this.output);
-			
-			if(path == null) {
-				log.error("### Error found while downloading remote file '{}'", fileName);
-				return false;
-			}
-			
-			
-		    return true;
-		}
-		catch (Exception ioe) {
-			log.error("### Error found while downloading remote file '{}'", fileName, ioe);
-			FileUtil.removeFile(newFileName);
-			return false;
-		}
-	}
-	
-	public boolean deleteFile() {
-		try {
-			
-			this.channelSftp.rm(this.input);
-			log.info("File {} remotely deleted",this.input);
-			return true;
-		}
-		catch (SftpException ioe) {
-			log.error("### Error found while deleting remote file '{}'", fileName, ioe);
-			return false;
-		}
-	}
-	
-	
-	public boolean close() {
-		try {
-			this.channelSftp.exit();
-			this.channelSftp.disconnect();
-			this.channel.disconnect();
-			this.session.disconnect();
-			
-			log.info("SFTP channel & session disconnected");
-			return true;
-		}
-		catch (Exception ioe) {
-			log.error("### Error found while closing connection to ftp server", ioe);
-			return false;
-		}
+        try {
+
+            Path path = Paths.get(this.output);
+
+            long bytes = Files.size(path);
+            if (bytes <= 0) {
+                log.error("### Remote file '{}' is empty (will be deleted !)", fileName);
+                Files.delete(path);
+                return true;
+
+            }
+
+        } catch (IOException e) {
+            log.error("## Exception due to: {} ", e.getLocalizedMessage());
+            return false;
+        }
+
+        return false;
     }
-	
+
+
+    public boolean downloadFile() {
+        try {
+
+            Path path = Paths.get(this.output);
+
+            if (path == null) {
+                log.error("### Error found while downloading remote file '{}'", fileName);
+                return false;
+            }
+
+
+            return true;
+        } catch (Exception ioe) {
+            log.error("### Error found while downloading remote file '{}'", fileName, ioe);
+            FileUtil.removeFile(newFileName);
+            return false;
+        }
+    }
+
+    public boolean deleteFile() {
+        try {
+
+            this.channelSftp.rm(this.input);
+            log.info("File {} remotely deleted", this.input);
+            return true;
+        } catch (SftpException ioe) {
+            log.error("### Error found while deleting remote file '{}'", fileName, ioe);
+            return false;
+        }
+    }
+
+
+    public boolean close() {
+        try {
+            this.channelSftp.exit();
+            this.channelSftp.disconnect();
+            this.channel.disconnect();
+            this.session.disconnect();
+
+            log.info("SFTP channel & session disconnected");
+            return true;
+        } catch (Exception ioe) {
+            log.error("### Error found while closing connection to ftp server", ioe);
+            return false;
+        }
+    }
+
 }
